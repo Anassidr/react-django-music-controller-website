@@ -3,10 +3,11 @@ import RoomJoinPage from './RoomJoinPage';
 import CreateRoomPage from './CreateRoomPage';
 import { 
     BrowserRouter as Router,
-    Switch, 
+    Switch,
+    Routes, 
     Route, 
     Link, 
-    Redirect
+    Redirect,
 } from "react-router-dom";
 
 
@@ -19,13 +20,12 @@ export default class HomePage extends Component {
         return (
         <Router>
             <Switch>
-                <Route path='/'>
+                <Route exact path="/">
                     <p>This is the home page</p>
                 </Route>
-                <Route path='/join' component ={RoomJoinPage} />
-                <Route path='/create' component ={CreateRoomPage} />
+                <Route path="/join" component ={RoomJoinPage} />
+                <Route path="/create" component ={CreateRoomPage} />
             </Switch>
-
         </Router>
         );
     }
