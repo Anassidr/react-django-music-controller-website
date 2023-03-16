@@ -20,7 +20,7 @@ class GetRoom(APIView):
     lookup_url_kwarg = 'code'
     
     def get(self, request, format=None):
-        code == request.GET.get(self.lookup_url_kwarg)
+        code = request.GET.get(self.lookup_url_kwarg)
         if code != None:
             room = Room.objects.filter(code=code)
             if len(room) > 0:

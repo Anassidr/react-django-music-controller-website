@@ -11,12 +11,25 @@ export default class Room extends Component {
         this.roomCode = this.props.match.params.roomCode;
     }
 
+    getRoomDetails() {
+        fetch(
+            '/api/get-room'+'?code='+this.roomCode).then((response) => response.json()
+        ).then((data) => {
+            this.setState
+            ({
+                votesToSkip: data.votes_to_skip,
+                guestCanPause: guest_can_pause,
+                ishost: data.is_host,
+            })
+        });
+    }
+
     render () {
         return <div>
                 <h3>{this.roomCode}</h3>
             <p>Votes: {this.state.votesToSkip}</p>
-            <p>Guest can pause: {this.state.guestCanPause}</p>
-            <p>Host: {this.state.isHost}</p>
+            <p>Guest can pause: {this.state.guestCanPause.toString()}</p>
+            <p>Host: {this.state.isHost.toString()}</p>
         </div>
     }
 }
