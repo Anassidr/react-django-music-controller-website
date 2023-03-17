@@ -52,7 +52,7 @@ export default class Room extends Component {
   updateShowSettings(value) {
     this.setState({ 
         showSettings: value,
-    })
+    });
   }
 
   renderSettings() {
@@ -62,7 +62,7 @@ export default class Room extends Component {
             <CreateRoomPage 
             update={true} 
             votesToSkip={this.state.votesToSkip} 
-            guestCanPause={this.guestCanPause} 
+            guestCanPause={this.state.guestCanPause} 
             roomCode={this.roomCode}
             updateCallback={this.getRoomDetails}
             />
