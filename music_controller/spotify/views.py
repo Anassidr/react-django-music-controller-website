@@ -1,22 +1,27 @@
 from django.shortcuts import render, redirect
-from .credentials import REDIRECT_URI, CLIENT_ID, CLIENT_SECRET
+from .credentials import REDIRECT_URI, CLIENT_SECRET, CLIENT_ID
 from rest_framework.views import APIView
 from requests import Request, post
 from rest_framework import status
-from rest_framework.response import Response 
-from .utils import update_or_create_user_tokens, is_spotify_authenticated
+from rest_framework.response import Response
+from .utils import *
+from api.models import Room
+
 
 class AuthURL(APIView):
     def get(self, request, format=None):
         scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing'
+
         url = Request('GET', 'https://accounts.spotify.com/authorize', params={
             'scope': scopes,
             'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
             'client_id': CLIENT_ID
-        }).prepare().url 
+        }).prepare().url
+
         return Response({'url': url}, status=status.HTTP_200_OK)
-    
+
+
 def spotify_callback(request, format=None):
     code = request.GET.get('code')
     error = request.GET.get('error')
@@ -35,15 +40,34 @@ def spotify_callback(request, format=None):
     expires_in = response.get('expires_in')
     error = response.get('error')
 
+    print(expires_in)
+
     if not request.session.exists(request.session.session_key):
         request.session.create()
 
-    update_or_create_user_tokens(request.session.session_key, access_token, token_type, expires_in, refresh_token)
-    
+    update_or_create_user_tokens(
+        request.session.session_key, access_token, token_type, expires_in, refresh_token)
+
     return redirect('frontend:')
+
+
+class IsAuthenticated(APIView):
+    def get(self, request, format=None):
+        is_authenticated = is_spotify_authenticated(
+            self.request.session.session_key)
+        return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
     
 
-class IsAuthenticated(APIView): 
+class CurrentSong(APIView):
     def get(self, request, format=None):
-        is_authenticated = is_spotify_authenticated(self.request.session.session_key)
-        return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
+        room_code = self.request.session.get('room')
+        if room.exists():
+            room = Room.objects.filter(code=room_code)[0]
+        else:
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
+        host = room.host
+        endpoint = '/player/currently-playing'
+        response = execute_spotify_api_request(host, endpoint) #get request
+        print(response)
+
+        return Response(response, status=status.HTTP_200_OK)
